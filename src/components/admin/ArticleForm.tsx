@@ -26,7 +26,7 @@ export default function ArticleForm({
     slug: article?.slug || "",
     excerpt: article?.excerpt || "",
     content: article?.content || "",
-    image: article?.image || "",
+    featuredImage: article?.featuredImage || "",
     status: article?.status || "draft",
   });
 
@@ -167,9 +167,9 @@ export default function ArticleForm({
               Featured Image
             </label>
             <ImageUpload
-              value={formData.image}
+              value={formData.featuredImage}
               onChange={(url) =>
-                setFormData((prev) => ({ ...prev, image: url || "" }))
+                setFormData((prev) => ({ ...prev, featuredImage: url || "" }))
               }
               folder="articles"
             />

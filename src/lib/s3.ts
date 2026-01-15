@@ -9,7 +9,7 @@ import { v4 as uuidv4 } from "uuid";
 
 // Initialize S3 client
 const s3Client = new S3Client({
-  region: process.env.AWS_REGION || "eu-west-2",
+  region: process.env.AWS_REGION || "us-east-1",
 });
 
 const BUCKET_NAME = process.env.S3_BUCKET_NAME || "wrs-images";
@@ -88,7 +88,7 @@ export function getPublicUrl(key: string): string {
   if (CLOUDFRONT_URL) {
     return `${CLOUDFRONT_URL}/${key}`;
   }
-  return `https://${BUCKET_NAME}.s3.${process.env.AWS_REGION || "eu-west-2"}.amazonaws.com/${key}`;
+  return `https://${BUCKET_NAME}.s3.${process.env.AWS_REGION || "us-east-1"}.amazonaws.com/${key}`;
 }
 
 /**

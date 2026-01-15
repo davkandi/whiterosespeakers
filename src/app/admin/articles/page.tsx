@@ -186,7 +186,7 @@ export default function ArticlesAdminPage() {
                       </span>
                       <span className="flex items-center gap-1">
                         <Calendar className="w-4 h-4" />
-                        {new Date(article.updatedAt).toLocaleDateString()}
+                        {new Date(article.publishedAt).toLocaleDateString()}
                       </span>
                     </div>
                   </div>

@@ -36,7 +36,7 @@ export async function GET(request: NextRequest) {
 
     // Get recent activity
     const recentArticles = [...allArticles]
-      .sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime())
+      .sort((a, b) => new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime())
       .slice(0, 5);
 
     const recentImages = [...allImages]
@@ -73,7 +73,7 @@ export async function GET(request: NextRequest) {
           id: a.id,
           title: a.title,
           status: a.status,
-          updatedAt: a.updatedAt,
+          publishedAt: a.publishedAt,
         })),
         images: recentImages.map((i) => ({
           id: i.id,

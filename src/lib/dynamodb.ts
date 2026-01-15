@@ -5,6 +5,7 @@ import {
   PutCommand,
   QueryCommand,
   ScanCommand,
+  ScanCommandInput,
   UpdateCommand,
   DeleteCommand,
 } from "@aws-sdk/lib-dynamodb";
@@ -64,6 +65,9 @@ export interface Event {
   time: string;
   location: string;
   type: "meeting" | "special" | "workshop";
+  featured?: boolean;
+  image?: string;
+  registrationUrl?: string;
 }
 
 export interface GalleryImage {
@@ -146,7 +150,7 @@ export const pageContent = {
 // Article Operations
 export const articles = {
   async list(status?: "draft" | "published"): Promise<Article[]> {
-    const params: Record<string, unknown> = {
+    const params: ScanCommandInput = {
       TableName: TABLES.ARTICLES,
     };
 
@@ -313,7 +317,7 @@ export const events = {
 // Gallery Operations
 export const gallery = {
   async list(category?: string): Promise<GalleryImage[]> {
-    const params: Record<string, unknown> = {
+    const params: ScanCommandInput = {
       TableName: TABLES.GALLERY,
     };
 

@@ -40,24 +40,19 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Configure AWS credentials
+      - name: Configure AWS credentials (OIDC)
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          role-to-assume: arn:aws:iam::058264552608:role/GitHubActionsWhiteRose
           aws-region: ${{ env.AWS_REGION }}
 
       - name: Deploy with SST
         run: npx sst deploy --stage ${{ github.event.inputs.stage || 'production' }}
         env:
-          # S3 & CloudFront
-          S3_BUCKET_NAME: ${{ secrets.S3_BUCKET_NAME }}
-          CLOUDFRONT_URL: ${{ secrets.CLOUDFRONT_URL }}
-          # Cognito
-          COGNITO_USER_POOL_ID: ${{ secrets.COGNITO_USER_POOL_ID }}
-          COGNITO_CLIENT_ID: ${{ secrets.COGNITO_CLIENT_ID }}
-          # ACM Certificate (for custom domain)
-          ACM_CERTIFICATE_ARN: ${{ secrets.ACM_CERTIFICATE_ARN }}
+          S3_BUCKET_NAME: wrs-images-058264552608
+          CLOUDFRONT_URL: https://d1onsjo8rd4nrx.cloudfront.net
+          COGNITO_USER_POOL_ID: us-east-1_K6fqek0I4
+          COGNITO_CLIENT_ID: 71l32873gcdqh48ngbrshutlq2
 
       - name: Output deployment URL
         run: |

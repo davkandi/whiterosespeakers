@@ -9,7 +9,7 @@ export async function GET() {
     // Filter to published only and sort by date
     const publishedArticles = allArticles
       .filter((article) => article.status === "published")
-      .sort((a, b) => new Date(b.publishedAt || b.createdAt).getTime() - new Date(a.publishedAt || a.createdAt).getTime());
+      .sort((a, b) => new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime());
 
     return NextResponse.json(publishedArticles);
   } catch (error) {

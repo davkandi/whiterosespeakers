@@ -28,9 +28,6 @@ export default $config({
   async run() {
     // Environment variables for the Next.js application
     const environment = {
-      // AWS Region
-      AWS_REGION: "us-east-1",
-
       // DynamoDB Tables
       DYNAMODB_CONTENT_TABLE: "wrs-content",
       DYNAMODB_ARTICLES_TABLE: "wrs-articles",
@@ -58,12 +55,11 @@ export default $config({
 
     // Deploy Next.js site
     const site = new sst.aws.Nextjs("WhiteRoseSite", {
-      // Custom domain configuration
+      // Custom domain configuration - using Route 53
       domain: $app.stage === "production"
         ? {
             name: "whiterosespeakers.co.uk",
-            dns: false, // We manage DNS externally
-            cert: process.env.ACM_CERTIFICATE_ARN,
+            redirects: ["www.whiterosespeakers.co.uk"],
           }
         : undefined,
 
@@ -77,45 +73,45 @@ export default $config({
 
         // Timeout for SSR functions
         timeout: "30 seconds",
-
-        // IAM permissions for AWS services
-        permissions: [
-          {
-            actions: [
-              "dynamodb:GetItem",
-              "dynamodb:PutItem",
-              "dynamodb:UpdateItem",
-              "dynamodb:DeleteItem",
-              "dynamodb:Query",
-              "dynamodb:Scan",
-            ],
-            resources: [
-              `arn:aws:dynamodb:us-east-1:*:table/wrs-*`,
-              `arn:aws:dynamodb:us-east-1:*:table/wrs-*/index/*`,
-            ],
-          },
-          {
-            actions: [
-              "s3:GetObject",
-              "s3:PutObject",
-              "s3:DeleteObject",
-            ],
-            resources: [
-              `arn:aws:s3:::wrs-images-*/*`,
-            ],
-          },
-          {
-            actions: [
-              "ses:SendEmail",
-              "ses:SendRawEmail",
-            ],
-            resources: ["*"],
-          },
-        ],
       },
 
       // Warm up Lambda functions to reduce cold starts
       warm: $app.stage === "production" ? 1 : 0,
+
+      // IAM permissions for AWS services
+      permissions: [
+        {
+          actions: [
+            "dynamodb:GetItem",
+            "dynamodb:PutItem",
+            "dynamodb:UpdateItem",
+            "dynamodb:DeleteItem",
+            "dynamodb:Query",
+            "dynamodb:Scan",
+          ],
+          resources: [
+            "arn:aws:dynamodb:us-east-1:*:table/wrs-*",
+            "arn:aws:dynamodb:us-east-1:*:table/wrs-*/index/*",
+          ],
+        },
+        {
+          actions: [
+            "s3:GetObject",
+            "s3:PutObject",
+            "s3:DeleteObject",
+          ],
+          resources: [
+            "arn:aws:s3:::wrs-images-*/*",
+          ],
+        },
+        {
+          actions: [
+            "ses:SendEmail",
+            "ses:SendRawEmail",
+          ],
+          resources: ["*"],
+        },
+      ],
     });
 
     return {

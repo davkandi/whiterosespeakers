@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getUploadUrl } from "@/lib/s3";
+import { getUploadPresignedUrl, getPublicUrl } from "@/lib/s3";
 import { requireAdmin, isAuthError } from "@/lib/api-auth";
 
 // GET /api/admin/upload - Get presigned upload URL
@@ -36,12 +36,9 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    // Generate unique filename
-    const timestamp = Date.now();
-    const sanitizedFilename = filename.replace(/[^a-zA-Z0-9.-]/g, "_");
-    const key = `${folder}/${timestamp}-${sanitizedFilename}`;
-
-    const { uploadUrl, publicUrl } = await getUploadUrl(key, contentType);
+    // Get presigned upload URL
+    const { uploadUrl, key } = await getUploadPresignedUrl(filename, contentType, folder);
+    const publicUrl = getPublicUrl(key);
 
     return NextResponse.json({
       uploadUrl,

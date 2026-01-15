@@ -1,0 +1,23 @@
+{
+  "name": "wrs-infrastructure",
+  "version": "1.0.0",
+  "bin": {
+    "app": "bin/app.ts"
+  },
+  "scripts": {
+    "build": "tsc",
+    "cdk": "cdk",
+    "deploy": "cdk deploy",
+    "destroy": "cdk destroy"
+  },
+  "dependencies": {
+    "aws-cdk-lib": "^2.234.1",
+    "constructs": "^10.4.4"
+  },
+  "devDependencies": {
+    "@types/node": "^20",
+    "aws-cdk": "^2.234.1",
+    "ts-node": "^10.9.2",
+    "typescript": "^5"
+  }
+}

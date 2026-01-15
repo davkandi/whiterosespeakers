@@ -20,7 +20,7 @@ export default $config({
       home: "aws",
       providers: {
         aws: {
-          region: "eu-west-2",
+          region: "us-east-1",
         },
       },
     };
@@ -29,7 +29,7 @@ export default $config({
     // Environment variables for the Next.js application
     const environment = {
       // AWS Region
-      AWS_REGION: "eu-west-2",
+      AWS_REGION: "us-east-1",
 
       // DynamoDB Tables
       DYNAMODB_CONTENT_TABLE: "wrs-content",
@@ -90,8 +90,8 @@ export default $config({
               "dynamodb:Scan",
             ],
             resources: [
-              `arn:aws:dynamodb:eu-west-2:*:table/wrs-*`,
-              `arn:aws:dynamodb:eu-west-2:*:table/wrs-*/index/*`,
+              `arn:aws:dynamodb:us-east-1:*:table/wrs-*`,
+              `arn:aws:dynamodb:us-east-1:*:table/wrs-*/index/*`,
             ],
           },
           {

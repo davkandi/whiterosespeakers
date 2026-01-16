@@ -144,6 +144,19 @@ export default function Footer() {
               ))}
             </div>
           </div>
+          <div className="mt-4 text-center">
+            <p className="text-white/50 text-xs">
+              Powered by{" "}
+              <a
+                href="https://www.bourdak.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-white/70 hover:text-white transition-colors underline"
+              >
+                Bourdak
+              </a>
+            </p>
+          </div>
         </div>
       </div>
     </footer>

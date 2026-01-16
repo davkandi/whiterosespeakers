@@ -9,6 +9,7 @@ import {
   Calendar,
   Image,
   Users,
+  UserCog,
   MessageSquareQuote,
   Settings,
   LogOut,
@@ -25,6 +26,7 @@ const navItems = [
   { href: "/admin/gallery", icon: Image, label: "Gallery" },
   { href: "/admin/team", icon: Users, label: "Team" },
   { href: "/admin/testimonials", icon: MessageSquareQuote, label: "Testimonials" },
+  { href: "/admin/users", icon: UserCog, label: "Admin Users" },
   { href: "/admin/settings", icon: Settings, label: "Settings" },
 ];
 

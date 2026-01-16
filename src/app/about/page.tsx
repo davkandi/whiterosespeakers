@@ -18,7 +18,7 @@ interface TeamMember {
   id: string;
   name: string;
   role: string;
-  bio: string;
+  description: string;
   image?: string;
   order: number;
   active: boolean;
@@ -268,8 +268,8 @@ export default function AboutPage() {
                   src={photo.url}
                   alt={photo.alt}
                   fill
+                  sizes="(max-width: 768px) 50vw, 33vw"
                   className="object-cover group-hover:scale-105 transition-transform duration-500"
-                  unoptimized
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
               </motion.div>
@@ -345,9 +345,11 @@ export default function AboutPage() {
                   <p className="text-primary font-medium text-xs mb-2">
                     {member.role}
                   </p>
-                  <p className="text-foreground-muted text-xs leading-relaxed">
-                    {member.bio}
-                  </p>
+                  {member.description && (
+                    <p className="text-foreground-muted text-xs leading-relaxed">
+                      {member.description}
+                    </p>
+                  )}
                 </motion.div>
               ))}
             </div>

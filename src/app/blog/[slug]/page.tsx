@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import Link from "next/link";
 import { useParams } from "next/navigation";
@@ -12,68 +13,63 @@ import {
   Facebook,
   Twitter,
   Linkedin,
+  Loader2,
 } from "lucide-react";
 
-// Sample blog post data - in production, this would come from DynamoDB
-const posts: Record<string, {
+interface Article {
+  id: string;
+  slug: string;
   title: string;
   excerpt: string;
-  author: string;
-  date: string;
-  readTime: string;
-  category: string;
   content: string;
-}> = {
-  "overcome-fear-public-speaking": {
-    title: "5 Proven Strategies to Overcome Your Fear of Public Speaking",
-    excerpt:
-      "Discover practical techniques that will help you transform your anxiety into confidence and deliver compelling presentations.",
-    author: "Sarah Mitchell",
-    date: "2024-01-10",
-    readTime: "5 min read",
-    category: "Tips",
-    content: `
-Public speaking anxiety affects up to 75% of the population, making it one of the most common fears. But here's the good news: with the right strategies and consistent practice, you can transform this fear into confidence.
-
-## 1. Reframe Your Mindset
-
-The first step is changing how you think about public speaking. Instead of viewing it as a performance to be judged, see it as a conversation with your audience. You're sharing valuable information, not seeking approval.
-
-**Try this:** Before your next speech, remind yourself: "I'm here to share something useful. My audience wants me to succeed."
-
-## 2. Practice, Practice, Practice
-
-There's no substitute for practice. The more familiar you are with your material, the more confident you'll feel. But don't just practice in your head—say it out loud.
-
-At White Rose Speakers, we provide a safe environment to practice regularly. Each meeting gives you opportunities to speak, whether it's a prepared speech or impromptu Table Topics.
-
-## 3. Master Your Breathing
-
-When we're anxious, our breathing becomes shallow, which can make us feel more stressed. Deep, controlled breathing activates your parasympathetic nervous system and helps calm your nerves.
-
-**Exercise:** Before speaking, take 5 deep breaths. Inhale for 4 counts, hold for 4, exhale for 4.
-
-## 4. Focus on Your Message, Not Yourself
-
-Anxiety often stems from self-focus—worrying about how we look or sound. Shift your attention to your message and your audience. What do they need to hear? How can you help them?
-
-## 5. Embrace Imperfection
-
-No speech is perfect, and that's okay. Audiences are forgiving and often don't notice small mistakes. What matters is authenticity and connection.
-
----
-
-**Ready to put these strategies into practice?** Join us at White Rose Speakers Leeds, where you'll find a supportive community eager to help you grow. Your first visit is free!
-    `,
-  },
-};
+  author: string;
+  publishedAt: string;
+  status: string;
+  category: string;
+  readTime: string;
+  featuredImage?: string;
+}
 
 export default function BlogPostPage() {
   const params = useParams();
   const slug = params.slug as string;
-  const post = posts[slug];
+  const [post, setPost] = useState<Article | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [notFound, setNotFound] = useState(false);
 
-  if (!post) {
+  useEffect(() => {
+    async function fetchArticle() {
+      try {
+        const response = await fetch(`/api/articles?slug=${slug}`);
+        if (response.ok) {
+          const data = await response.json();
+          if (data) {
+            setPost(data);
+          } else {
+            setNotFound(true);
+          }
+        } else {
+          setNotFound(true);
+        }
+      } catch (error) {
+        console.error("Error fetching article:", error);
+        setNotFound(true);
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchArticle();
+  }, [slug]);
+
+  if (loading) {
+    return (
+      <div className="pt-32 min-h-screen flex items-center justify-center">
+        <Loader2 className="w-8 h-8 animate-spin text-primary" />
+      </div>
+    );
+  }
+
+  if (notFound || !post) {
     return (
       <div className="pt-20 min-h-screen flex items-center justify-center">
         <div className="text-center">
@@ -81,7 +77,7 @@ export default function BlogPostPage() {
             Article Not Found
           </h1>
           <p className="text-foreground-muted mb-8">
-            The article you're looking for doesn't exist.
+            The article you&apos;re looking for doesn&apos;t exist.
           </p>
           <Link href="/blog" className="btn-primary">
             Back to Blog
@@ -124,7 +120,7 @@ export default function BlogPostPage() {
               </div>
               <div className="flex items-center gap-2">
                 <Calendar className="w-4 h-4" />
-                {new Date(post.date).toLocaleDateString("en-GB", {
+                {new Date(post.publishedAt).toLocaleDateString("en-GB", {
                   day: "numeric",
                   month: "long",
                   year: "numeric",
@@ -157,31 +153,8 @@ export default function BlogPostPage() {
                 prose-ol:text-foreground-muted
                 prose-blockquote:border-primary prose-blockquote:text-foreground-muted
                 prose-hr:border-border"
-            >
-              {post.content.split("\n").map((paragraph, index) => {
-                if (paragraph.startsWith("## ")) {
-                  return (
-                    <h2 key={index} className="text-2xl mt-8 mb-4">
-                      {paragraph.replace("## ", "")}
-                    </h2>
-                  );
-                }
-                if (paragraph.startsWith("**") && paragraph.endsWith("**")) {
-                  return (
-                    <p key={index} className="font-semibold">
-                      {paragraph.replace(/\*\*/g, "")}
-                    </p>
-                  );
-                }
-                if (paragraph.startsWith("---")) {
-                  return <hr key={index} className="my-8" />;
-                }
-                if (paragraph.trim()) {
-                  return <p key={index}>{paragraph}</p>;
-                }
-                return null;
-              })}
-            </motion.article>
+              dangerouslySetInnerHTML={{ __html: post.content }}
+            />
 
             {/* Share Sidebar */}
             <motion.aside

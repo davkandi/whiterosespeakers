@@ -35,13 +35,13 @@ export default $config({
       DYNAMODB_GALLERY_TABLE: "wrs-gallery",
       DYNAMODB_SUBSCRIBERS_TABLE: "wrs-subscribers",
 
-      // S3 & CloudFront (from environment or secrets)
-      S3_BUCKET_NAME: process.env.S3_BUCKET_NAME || "",
-      CLOUDFRONT_URL: process.env.CLOUDFRONT_URL || "",
+      // S3 & CloudFront
+      S3_BUCKET_NAME: "wrs-images-058264552608",
+      CLOUDFRONT_URL: "https://d1onsjo8rd4nrx.cloudfront.net",
 
       // Cognito
-      NEXT_PUBLIC_COGNITO_USER_POOL_ID: process.env.COGNITO_USER_POOL_ID || "",
-      NEXT_PUBLIC_COGNITO_CLIENT_ID: process.env.COGNITO_CLIENT_ID || "",
+      NEXT_PUBLIC_COGNITO_USER_POOL_ID: "us-east-1_K6fqek0I4",
+      NEXT_PUBLIC_COGNITO_CLIENT_ID: "71l32873gcdqh48ngbrshutlq2",
 
       // Site Configuration
       NEXT_PUBLIC_SITE_URL: $app.stage === "production"
@@ -110,6 +110,20 @@ export default $config({
             "ses:SendRawEmail",
           ],
           resources: ["*"],
+        },
+        {
+          actions: [
+            "cognito-idp:ListUsers",
+            "cognito-idp:AdminCreateUser",
+            "cognito-idp:AdminDeleteUser",
+            "cognito-idp:AdminAddUserToGroup",
+            "cognito-idp:AdminRemoveUserFromGroup",
+            "cognito-idp:AdminListGroupsForUser",
+            "cognito-idp:AdminSetUserPassword",
+            "cognito-idp:AdminEnableUser",
+            "cognito-idp:AdminDisableUser",
+          ],
+          resources: ["arn:aws:cognito-idp:us-east-1:*:userpool/us-east-1_K6fqek0I4"],
         },
       ],
     });

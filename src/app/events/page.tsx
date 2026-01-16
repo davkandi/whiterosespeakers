@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
+import Image from "next/image";
 import {
   Calendar,
   Clock,
@@ -242,39 +243,64 @@ export default function EventsPage() {
                     {upcomingEvents.map((event) => (
                       <div
                         key={event.id}
-                        className="bg-white rounded-xl p-4 shadow-md border border-border"
+                        className="bg-white rounded-xl overflow-hidden shadow-md border border-border"
                       >
-                        <div className="flex items-start gap-4">
-                          <div
-                            className={`w-12 h-12 ${
-                              eventTypes[event.type]?.color || "bg-primary"
-                            } rounded-lg flex items-center justify-center text-white shrink-0`}
-                          >
-                            <Calendar className="w-6 h-6" />
+                        {event.image && (
+                          <div className="relative h-32 w-full">
+                            <Image
+                              src={event.image}
+                              alt={event.title}
+                              fill
+                              className="object-cover"
+                            />
+                            <div className="absolute top-2 left-2">
+                              <span
+                                className={`inline-block px-2 py-0.5 ${
+                                  eventTypes[event.type]?.color || "bg-primary"
+                                } text-white rounded text-xs font-medium`}
+                              >
+                                {eventTypes[event.type]?.label || "Event"}
+                              </span>
+                            </div>
                           </div>
-                          <div className="flex-1 min-w-0">
-                            <span
-                              className={`inline-block px-2 py-0.5 ${
-                                eventTypes[event.type]?.color || "bg-primary"
-                              } text-white rounded text-xs font-medium mb-1`}
-                            >
-                              {eventTypes[event.type]?.label || "Event"}
-                            </span>
-                            <h3 className="font-bold text-foreground truncate">
-                              {event.title}
-                            </h3>
-                            <div className="flex flex-col gap-1 mt-2 text-sm text-foreground-muted">
-                              <div className="flex items-center gap-2">
-                                <Calendar className="w-4 h-4" />
-                                {format(new Date(event.date), "EEEE, d MMMM yyyy")}
+                        )}
+                        <div className="p-4">
+                          <div className="flex items-start gap-4">
+                            {!event.image && (
+                              <div
+                                className={`w-12 h-12 ${
+                                  eventTypes[event.type]?.color || "bg-primary"
+                                } rounded-lg flex items-center justify-center text-white shrink-0`}
+                              >
+                                <Calendar className="w-6 h-6" />
                               </div>
-                              <div className="flex items-center gap-2">
-                                <Clock className="w-4 h-4" />
-                                {event.time}
-                              </div>
-                              <div className="flex items-center gap-2">
-                                <MapPin className="w-4 h-4" />
-                                {event.location}
+                            )}
+                            <div className="flex-1 min-w-0">
+                              {!event.image && (
+                                <span
+                                  className={`inline-block px-2 py-0.5 ${
+                                    eventTypes[event.type]?.color || "bg-primary"
+                                  } text-white rounded text-xs font-medium mb-1`}
+                                >
+                                  {eventTypes[event.type]?.label || "Event"}
+                                </span>
+                              )}
+                              <h3 className="font-bold text-foreground truncate">
+                                {event.title}
+                              </h3>
+                              <div className="flex flex-col gap-1 mt-2 text-sm text-foreground-muted">
+                                <div className="flex items-center gap-2">
+                                  <Calendar className="w-4 h-4" />
+                                  {format(new Date(event.date), "EEEE, d MMMM yyyy")}
+                                </div>
+                                <div className="flex items-center gap-2">
+                                  <Clock className="w-4 h-4" />
+                                  {event.time}
+                                </div>
+                                <div className="flex items-center gap-2">
+                                  <MapPin className="w-4 h-4" />
+                                  {event.location}
+                                </div>
                               </div>
                             </div>
                           </div>

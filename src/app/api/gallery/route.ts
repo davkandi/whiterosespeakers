@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { gallery } from "@/lib/dynamodb";
+import { getPublicUrl } from "@/lib/s3";
 
 // GET /api/gallery - List gallery images
 export async function GET(request: NextRequest) {
@@ -14,7 +15,13 @@ export async function GET(request: NextRequest) {
       new Date(b.uploadedAt).getTime() - new Date(a.uploadedAt).getTime()
     );
 
-    return NextResponse.json(images);
+    // Add URL to each image from s3Key
+    const imagesWithUrls = images.map((image) => ({
+      ...image,
+      url: getPublicUrl(image.s3Key),
+    }));
+
+    return NextResponse.json(imagesWithUrls);
   } catch (error) {
     console.error("Error fetching gallery:", error);
     return NextResponse.json(

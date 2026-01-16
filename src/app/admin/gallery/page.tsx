@@ -231,7 +231,7 @@ export default function GalleryAdminPage() {
               className="relative group aspect-square rounded-lg overflow-hidden bg-gray-100"
             >
               <Image
-                src={`https://${process.env.NEXT_PUBLIC_S3_BUCKET}.s3.${process.env.NEXT_PUBLIC_AWS_REGION}.amazonaws.com/${image.s3Key}`}
+                src={`https://d1onsjo8rd4nrx.cloudfront.net/${image.s3Key}`}
                 alt={image.title || "Gallery image"}
                 fill
                 className="object-cover"

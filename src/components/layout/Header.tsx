@@ -24,7 +24,8 @@ export default function Header() {
   const pathname = usePathname();
 
   // Pages that have dark hero sections need white text when not scrolled
-  const hasDarkHero = ["/", "/about", "/services", "/contact", "/blog", "/events", "/gallery"].includes(pathname);
+  const darkHeroPages = ["/", "/about", "/services", "/contact", "/blog", "/events", "/gallery"];
+  const hasDarkHero = darkHeroPages.includes(pathname) || pathname.startsWith("/blog/");
 
   useEffect(() => {
     const handleScroll = () => {

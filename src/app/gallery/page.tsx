@@ -154,19 +154,13 @@ export default function GalleryPage() {
                 >
                   <Image
                     src={image.url}
-                    alt={image.title}
+                    alt="Gallery image"
                     fill
                     className="object-cover transition-transform duration-300 group-hover:scale-105"
                   />
 
                   {/* Overlay */}
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity">
-                    <div className="absolute bottom-0 left-0 right-0 p-4">
-                      <h3 className="text-white font-bold text-sm">
-                        {image.title}
-                      </h3>
-                      <p className="text-white/70 text-xs">{image.category}</p>
-                    </div>
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity">
                     <div className="absolute top-4 right-4">
                       <div className="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center backdrop-blur-sm">
                         <ZoomIn className="w-5 h-5 text-white" />
@@ -243,16 +237,10 @@ export default function GalleryPage() {
               <div className="relative aspect-[4/3] rounded-lg overflow-hidden">
                 <Image
                   src={lightboxImage.url}
-                  alt={lightboxImage.title}
+                  alt="Gallery image"
                   fill
                   className="object-contain"
                 />
-              </div>
-              <div className="mt-4 text-center">
-                <h3 className="text-white font-bold text-xl">
-                  {lightboxImage.title}
-                </h3>
-                <p className="text-white/70">{lightboxImage.description}</p>
               </div>
             </motion.div>
 

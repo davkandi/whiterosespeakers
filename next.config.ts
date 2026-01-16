@@ -11,6 +11,14 @@ const nextConfig: NextConfig = {
         protocol: "https",
         hostname: "cdn.lindoai.com",
       },
+      {
+        protocol: "https",
+        hostname: "d1onsjo8rd4nrx.cloudfront.net",
+      },
+      {
+        protocol: "https",
+        hostname: "*.cloudfront.net",
+      },
     ],
   },
 };

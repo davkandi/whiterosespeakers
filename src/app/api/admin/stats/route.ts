@@ -73,7 +73,7 @@ export async function GET(request: NextRequest) {
           id: a.id,
           title: a.title,
           status: a.status,
-          publishedAt: a.publishedAt,
+          updatedAt: a.publishedAt,
         })),
         images: recentImages.map((i) => ({
           id: i.id,

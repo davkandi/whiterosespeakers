@@ -40,6 +40,11 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Remove pre-installed Pulumi (conflicts with SST)
+        run: |
+          sudo rm -rf /usr/local/bin/pulumi* || true
+          sudo rm -rf ~/.pulumi || true
+
       - name: Configure AWS credentials (OIDC)
         uses: aws-actions/configure-aws-credentials@v4
         with:

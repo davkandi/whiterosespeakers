@@ -1,61 +1,45 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
-import { X, ChevronLeft, ChevronRight, ZoomIn } from "lucide-react";
+import { X, ChevronLeft, ChevronRight, ZoomIn, Loader2, ImageIcon } from "lucide-react";
 
-// Gallery images from White Rose Speakers
-const images = [
-  {
-    id: "1",
-    src: "https://cdn.lindoai.com/c/recNxZpB13uzSjqpH/images/83153514.jpg",
-    title: "Club Meeting",
-    category: "Meetings",
-    description: "Members gathered for a regular meeting at Leonardo Hotel",
-  },
-  {
-    id: "2",
-    src: "https://cdn.lindoai.com/c/recNxZpB13uzSjqpH/images/33005501.jpg",
-    title: "Member Presentation",
-    category: "Speeches",
-    description: "A member delivering their prepared speech to the club",
-  },
-  {
-    id: "3",
-    src: "https://cdn.lindoai.com/c/recNxZpB13uzSjqpH/images/94363180.jpg",
-    title: "Club Event",
-    category: "Events",
-    description: "Special club event with members and guests",
-  },
-  {
-    id: "4",
-    src: "https://cdn.lindoai.com/c/recNxZpB13uzSjqpH/images/47671624.jpg",
-    title: "Speaker at Podium",
-    category: "Speeches",
-    description: "Confident delivery during a club meeting",
-  },
-  {
-    id: "5",
-    src: "https://cdn.lindoai.com/c/recNxZpB13uzSjqpH/images/55473831.jpg",
-    title: "Group Discussion",
-    category: "Meetings",
-    description: "Members engaging in group discussion and feedback",
-  },
-  {
-    id: "6",
-    src: "https://cdn.lindoai.com/c/recNxZpB13uzSjqpH/images/10404643.jpg",
-    title: "Award Ceremony",
-    category: "Awards",
-    description: "Recognizing member achievements and milestones",
-  },
-];
-
-const categories = ["All", "Meetings", "Speeches", "Events", "Awards"];
+interface GalleryImage {
+  id: string;
+  category: string;
+  title: string;
+  description: string;
+  s3Key: string;
+  url: string;
+  uploadedAt: string;
+}
 
 export default function GalleryPage() {
+  const [images, setImages] = useState<GalleryImage[]>([]);
+  const [loading, setLoading] = useState(true);
   const [selectedCategory, setSelectedCategory] = useState("All");
-  const [lightboxImage, setLightboxImage] = useState<typeof images[0] | null>(null);
+  const [lightboxImage, setLightboxImage] = useState<GalleryImage | null>(null);
+
+  useEffect(() => {
+    async function fetchGallery() {
+      try {
+        const response = await fetch("/api/gallery");
+        if (response.ok) {
+          const data = await response.json();
+          setImages(data);
+        }
+      } catch (error) {
+        console.error("Error fetching gallery:", error);
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchGallery();
+  }, []);
+
+  // Get unique categories from images
+  const categories = ["All", ...new Set(images.map((img) => img.category).filter(Boolean))];
 
   const filteredImages =
     selectedCategory === "All"
@@ -103,79 +87,107 @@ export default function GalleryPage() {
         </div>
       </section>
 
+      {/* Loading State */}
+      {loading && (
+        <section className="py-20 bg-background">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <Loader2 className="w-8 h-8 animate-spin mx-auto text-primary" />
+            <p className="mt-4 text-foreground-muted">Loading gallery...</p>
+          </div>
+        </section>
+      )}
+
+      {/* Empty State */}
+      {!loading && images.length === 0 && (
+        <section className="py-20 bg-background">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <ImageIcon className="w-12 h-12 mx-auto text-foreground-muted mb-4" />
+            <h2 className="text-2xl font-bold text-foreground mb-4">Gallery Coming Soon</h2>
+            <p className="text-foreground-muted">
+              We&apos;re working on adding photos of our club meetings and events.
+              Check back soon!
+            </p>
+          </div>
+        </section>
+      )}
+
       {/* Gallery */}
-      <section className="py-16 bg-background">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          {/* Category Filter */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
-            className="flex flex-wrap gap-2 mb-12 justify-center"
-          >
-            {categories.map((category) => (
-              <button
-                key={category}
-                onClick={() => setSelectedCategory(category)}
-                className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
-                  category === selectedCategory
-                    ? "bg-primary text-white"
-                    : "bg-white text-foreground-muted hover:bg-primary/10 hover:text-primary border border-border"
-                }`}
-              >
-                {category}
-              </button>
-            ))}
-          </motion.div>
-
-          {/* Image Grid */}
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
-            {filteredImages.map((image, index) => (
+      {!loading && images.length > 0 && (
+        <section className="py-16 bg-background">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            {/* Category Filter */}
+            {categories.length > 1 && (
               <motion.div
-                key={image.id}
-                initial={{ opacity: 0, scale: 0.9 }}
-                whileInView={{ opacity: 1, scale: 1 }}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
-                transition={{ duration: 0.4, delay: index * 0.05 }}
-                className="group relative aspect-[4/3] rounded-xl overflow-hidden cursor-pointer shadow-lg"
-                onClick={() => setLightboxImage(image)}
+                transition={{ duration: 0.6 }}
+                className="flex flex-wrap gap-2 mb-12 justify-center"
               >
-                <Image
-                  src={image.src}
-                  alt={image.title}
-                  fill
-                  className="object-cover transition-transform duration-300 group-hover:scale-105"
-                />
+                {categories.map((category) => (
+                  <button
+                    key={category}
+                    onClick={() => setSelectedCategory(category)}
+                    className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
+                      category === selectedCategory
+                        ? "bg-primary text-white"
+                        : "bg-white text-foreground-muted hover:bg-primary/10 hover:text-primary border border-border"
+                    }`}
+                  >
+                    {category}
+                  </button>
+                ))}
+              </motion.div>
+            )}
 
-                {/* Overlay */}
-                <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity">
-                  <div className="absolute bottom-0 left-0 right-0 p-4">
-                    <h3 className="text-white font-bold text-sm">
-                      {image.title}
-                    </h3>
-                    <p className="text-white/70 text-xs">{image.category}</p>
-                  </div>
-                  <div className="absolute top-4 right-4">
-                    <div className="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center backdrop-blur-sm">
-                      <ZoomIn className="w-5 h-5 text-white" />
+            {/* Image Grid */}
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
+              {filteredImages.map((image, index) => (
+                <motion.div
+                  key={image.id}
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  whileInView={{ opacity: 1, scale: 1 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.4, delay: index * 0.05 }}
+                  className="group relative aspect-[4/3] rounded-xl overflow-hidden cursor-pointer shadow-lg"
+                  onClick={() => setLightboxImage(image)}
+                >
+                  <Image
+                    src={image.url}
+                    alt={image.title}
+                    fill
+                    className="object-cover transition-transform duration-300 group-hover:scale-105"
+                  />
+
+                  {/* Overlay */}
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity">
+                    <div className="absolute bottom-0 left-0 right-0 p-4">
+                      <h3 className="text-white font-bold text-sm">
+                        {image.title}
+                      </h3>
+                      <p className="text-white/70 text-xs">{image.category}</p>
+                    </div>
+                    <div className="absolute top-4 right-4">
+                      <div className="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center backdrop-blur-sm">
+                        <ZoomIn className="w-5 h-5 text-white" />
+                      </div>
                     </div>
                   </div>
-                </div>
-              </motion.div>
-            ))}
-          </div>
-
-          {/* No Images Message */}
-          {filteredImages.length === 0 && (
-            <div className="text-center py-12">
-              <p className="text-foreground-muted">
-                No images found in this category.
-              </p>
+                </motion.div>
+              ))}
             </div>
-          )}
-        </div>
-      </section>
+
+            {/* No Images in Category */}
+            {filteredImages.length === 0 && (
+              <div className="text-center py-12">
+                <p className="text-foreground-muted">
+                  No images found in this category.
+                </p>
+              </div>
+            )}
+          </div>
+        </section>
+      )}
 
       {/* Lightbox */}
       <AnimatePresence>
@@ -196,24 +208,28 @@ export default function GalleryPage() {
             </button>
 
             {/* Navigation */}
-            <button
-              className="absolute left-4 p-2 bg-white/10 rounded-full hover:bg-white/20 transition-colors"
-              onClick={(e) => {
-                e.stopPropagation();
-                navigateLightbox("prev");
-              }}
-            >
-              <ChevronLeft className="w-6 h-6 text-white" />
-            </button>
-            <button
-              className="absolute right-4 p-2 bg-white/10 rounded-full hover:bg-white/20 transition-colors"
-              onClick={(e) => {
-                e.stopPropagation();
-                navigateLightbox("next");
-              }}
-            >
-              <ChevronRight className="w-6 h-6 text-white" />
-            </button>
+            {filteredImages.length > 1 && (
+              <>
+                <button
+                  className="absolute left-4 p-2 bg-white/10 rounded-full hover:bg-white/20 transition-colors"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    navigateLightbox("prev");
+                  }}
+                >
+                  <ChevronLeft className="w-6 h-6 text-white" />
+                </button>
+                <button
+                  className="absolute right-4 p-2 bg-white/10 rounded-full hover:bg-white/20 transition-colors"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    navigateLightbox("next");
+                  }}
+                >
+                  <ChevronRight className="w-6 h-6 text-white" />
+                </button>
+              </>
+            )}
 
             {/* Image */}
             <motion.div
@@ -226,7 +242,7 @@ export default function GalleryPage() {
             >
               <div className="relative aspect-[4/3] rounded-lg overflow-hidden">
                 <Image
-                  src={lightboxImage.src}
+                  src={lightboxImage.url}
                   alt={lightboxImage.title}
                   fill
                   className="object-contain"
@@ -241,9 +257,11 @@ export default function GalleryPage() {
             </motion.div>
 
             {/* Counter */}
-            <div className="absolute bottom-4 left-1/2 -translate-x-1/2 text-white/70 text-sm">
-              {lightboxIndex + 1} / {filteredImages.length}
-            </div>
+            {filteredImages.length > 1 && (
+              <div className="absolute bottom-4 left-1/2 -translate-x-1/2 text-white/70 text-sm">
+                {lightboxIndex + 1} / {filteredImages.length}
+              </div>
+            )}
           </motion.div>
         )}
       </AnimatePresence>

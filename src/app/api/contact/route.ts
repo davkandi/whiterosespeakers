@@ -6,7 +6,7 @@ const SENDER_EMAIL = process.env.SES_SENDER_EMAIL || "noreply@whiterosespeakers.
 
 // Initialize SES client
 const sesClient = new SESClient({
-  region: process.env.AWS_REGION || "eu-west-2",
+  region: process.env.AWS_REGION || "us-east-1",
 });
 
 interface ContactFormData {

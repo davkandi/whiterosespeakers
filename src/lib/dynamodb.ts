@@ -13,7 +13,7 @@ import { v4 as uuidv4 } from "uuid";
 
 // Initialize DynamoDB client
 const client = new DynamoDBClient({
-  region: process.env.AWS_REGION || "eu-west-2",
+  region: process.env.AWS_REGION || "us-east-1",
   ...(process.env.DYNAMODB_ENDPOINT && {
     endpoint: process.env.DYNAMODB_ENDPOINT,
     credentials: {

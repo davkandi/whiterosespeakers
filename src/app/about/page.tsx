@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import Link from "next/link";
 import Image from "next/image";
@@ -9,9 +10,19 @@ import {
   Heart,
   Target,
   ArrowRight,
-  Calendar,
   Globe,
+  Loader2,
 } from "lucide-react";
+
+interface TeamMember {
+  id: string;
+  name: string;
+  role: string;
+  bio: string;
+  image?: string;
+  order: number;
+  active: boolean;
+}
 
 // Club photos from original website
 const clubPhotos = [
@@ -21,44 +32,6 @@ const clubPhotos = [
   { url: "https://cdn.lindoai.com/c/recNxZpB13uzSjqpH/images/47671624.jpg", alt: "Speaker at podium" },
   { url: "https://cdn.lindoai.com/c/recNxZpB13uzSjqpH/images/55473831.jpg", alt: "Group discussion" },
   { url: "https://cdn.lindoai.com/c/recNxZpB13uzSjqpH/images/10404643.jpg", alt: "Award ceremony" },
-];
-
-const team = [
-  {
-    name: "Jane Craggs",
-    role: "President",
-    description: "Leading our club with passion and dedication to member growth.",
-  },
-  {
-    name: "Dominic Bascombe",
-    role: "VP Membership",
-    description: "Growing our community and welcoming new members.",
-  },
-  {
-    name: "Edna Correia",
-    role: "VP Education",
-    description: "Guiding members through their educational journey.",
-  },
-  {
-    name: "Iris Araneta",
-    role: "VP Public Relations",
-    description: "Promoting our club and building community connections.",
-  },
-  {
-    name: "Isabel Gonzalez",
-    role: "Treasurer",
-    description: "Ensuring our club's financial health and sustainability.",
-  },
-  {
-    name: "David Kandi",
-    role: "Secretary",
-    description: "Keeping our records organised and communications flowing.",
-  },
-  {
-    name: "Viktor Grushetskyi",
-    role: "Sergeant at Arms",
-    description: "Creating a welcoming environment for all meetings.",
-  },
 ];
 
 const values = [
@@ -90,6 +63,26 @@ const values = [
 
 
 export default function AboutPage() {
+  const [team, setTeam] = useState<TeamMember[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function fetchTeam() {
+      try {
+        const response = await fetch("/api/team");
+        if (response.ok) {
+          const data = await response.json();
+          setTeam(data);
+        }
+      } catch (error) {
+        console.error("Error fetching team:", error);
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchTeam();
+  }, []);
+
   return (
     <div>
       {/* Hero Section */}
@@ -303,36 +296,62 @@ export default function AboutPage() {
             </p>
           </motion.div>
 
-          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {team.map((member, index) => (
-              <motion.div
-                key={member.name}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.6, delay: index * 0.05 }}
-                className="bg-white rounded-2xl p-5 shadow-lg border border-border text-center"
-              >
-                <div className="w-16 h-16 bg-gradient-to-br from-primary to-secondary rounded-full flex items-center justify-center mx-auto mb-3">
-                  <span className="text-xl font-bold text-white">
-                    {member.name
-                      .split(" ")
-                      .map((n) => n[0])
-                      .join("")}
-                  </span>
-                </div>
-                <h3 className="text-base font-bold text-foreground mb-1">
-                  {member.name}
-                </h3>
-                <p className="text-primary font-medium text-xs mb-2">
-                  {member.role}
-                </p>
-                <p className="text-foreground-muted text-xs leading-relaxed">
-                  {member.description}
-                </p>
-              </motion.div>
-            ))}
-          </div>
+          {loading ? (
+            <div className="text-center py-12">
+              <Loader2 className="w-8 h-8 animate-spin mx-auto text-primary" />
+              <p className="mt-4 text-foreground-muted">Loading team...</p>
+            </div>
+          ) : team.length === 0 ? (
+            <div className="text-center py-12">
+              <Users className="w-12 h-12 mx-auto text-foreground-muted mb-4" />
+              <p className="text-foreground-muted">
+                Leadership team information coming soon.
+              </p>
+            </div>
+          ) : (
+            <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
+              {team.map((member, index) => (
+                <motion.div
+                  key={member.id}
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.6, delay: index * 0.05 }}
+                  className="bg-white rounded-2xl p-5 shadow-lg border border-border text-center"
+                >
+                  {member.image ? (
+                    <div className="w-16 h-16 rounded-full overflow-hidden mx-auto mb-3">
+                      <Image
+                        src={member.image}
+                        alt={member.name}
+                        width={64}
+                        height={64}
+                        className="object-cover w-full h-full"
+                      />
+                    </div>
+                  ) : (
+                    <div className="w-16 h-16 bg-gradient-to-br from-primary to-secondary rounded-full flex items-center justify-center mx-auto mb-3">
+                      <span className="text-xl font-bold text-white">
+                        {member.name
+                          .split(" ")
+                          .map((n) => n[0])
+                          .join("")}
+                      </span>
+                    </div>
+                  )}
+                  <h3 className="text-base font-bold text-foreground mb-1">
+                    {member.name}
+                  </h3>
+                  <p className="text-primary font-medium text-xs mb-2">
+                    {member.role}
+                  </p>
+                  <p className="text-foreground-muted text-xs leading-relaxed">
+                    {member.bio}
+                  </p>
+                </motion.div>
+              ))}
+            </div>
+          )}
         </div>
       </section>
 

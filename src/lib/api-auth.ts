@@ -5,7 +5,7 @@ import { jwtVerify, createRemoteJWKSet } from "jose";
 const isDevMode = process.env.NEXT_PUBLIC_DEV_MODE === "true";
 
 const COGNITO_USER_POOL_ID = process.env.NEXT_PUBLIC_COGNITO_USER_POOL_ID || "";
-const COGNITO_REGION = process.env.AWS_REGION || "eu-west-2";
+const COGNITO_REGION = "us-east-1";
 
 // Cognito JWKS URL for token verification
 const JWKS_URL = `https://cognito-idp.${COGNITO_REGION}.amazonaws.com/${COGNITO_USER_POOL_ID}/.well-known/jwks.json`;

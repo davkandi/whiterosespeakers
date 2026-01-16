@@ -1,97 +1,58 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import Link from "next/link";
 import Image from "next/image";
-import { Calendar, User, ArrowRight, Clock } from "lucide-react";
+import { Calendar, User, ArrowRight, Clock, Loader2 } from "lucide-react";
 
-// Sample blog posts - in production, these would come from DynamoDB
-const posts = [
-  {
-    id: "1",
-    slug: "overcome-fear-public-speaking",
-    title: "5 Proven Strategies to Overcome Your Fear of Public Speaking",
-    excerpt:
-      "Discover practical techniques that will help you transform your anxiety into confidence and deliver compelling presentations.",
-    author: "Sarah Mitchell",
-    date: "2024-01-10",
-    readTime: "5 min read",
-    category: "Tips",
-    featured: true,
-    image: "https://cdn.lindoai.com/c/recNxZpB13uzSjqpH/images/83153514.jpg",
-  },
-  {
-    id: "2",
-    slug: "power-of-storytelling",
-    title: "The Power of Storytelling in Business Presentations",
-    excerpt:
-      "Learn how to captivate your audience and make your message memorable through the art of storytelling.",
-    author: "James Thompson",
-    date: "2024-01-05",
-    readTime: "7 min read",
-    category: "Skills",
-    featured: false,
-    image: "https://cdn.lindoai.com/c/recNxZpB13uzSjqpH/images/33005501.jpg",
-  },
-  {
-    id: "3",
-    slug: "toastmasters-pathways",
-    title: "Getting the Most Out of Your Toastmasters Pathways Journey",
-    excerpt:
-      "A comprehensive guide to navigating the Pathways learning experience and maximizing your development.",
-    author: "Priya Sharma",
-    date: "2023-12-20",
-    readTime: "6 min read",
-    category: "Education",
-    featured: false,
-    image: "https://cdn.lindoai.com/c/recNxZpB13uzSjqpH/images/94363180.jpg",
-  },
-  {
-    id: "4",
-    slug: "body-language-secrets",
-    title: "Body Language Secrets Every Speaker Should Know",
-    excerpt:
-      "Your nonverbal communication speaks volumes. Here's how to make sure it's saying the right things.",
-    author: "Michael Chen",
-    date: "2023-12-15",
-    readTime: "4 min read",
-    category: "Tips",
-    featured: false,
-    image: "https://cdn.lindoai.com/c/recNxZpB13uzSjqpH/images/47671624.jpg",
-  },
-  {
-    id: "5",
-    slug: "impromptu-speaking-mastery",
-    title: "Mastering the Art of Impromptu Speaking",
-    excerpt:
-      "Table Topics can be daunting, but with these techniques, you'll learn to think on your feet with ease.",
-    author: "Emma Williams",
-    date: "2023-12-10",
-    readTime: "5 min read",
-    category: "Skills",
-    featured: false,
-    image: "https://cdn.lindoai.com/c/recNxZpB13uzSjqpH/images/55473831.jpg",
-  },
-  {
-    id: "6",
-    slug: "leadership-through-speaking",
-    title: "How Public Speaking Accelerates Your Leadership Journey",
-    excerpt:
-      "The connection between effective communication and leadership success, and how Toastmasters bridges the gap.",
-    author: "David Brown",
-    date: "2023-12-05",
-    readTime: "6 min read",
-    category: "Leadership",
-    featured: false,
-    image: "https://cdn.lindoai.com/c/recNxZpB13uzSjqpH/images/10404643.jpg",
-  },
-];
-
-const categories = ["All", "Tips", "Skills", "Education", "Leadership"];
+interface Article {
+  id: string;
+  slug: string;
+  title: string;
+  excerpt: string;
+  content: string;
+  author: string;
+  publishedAt: string;
+  status: "draft" | "published";
+  featuredImage?: string;
+  category: string;
+  readTime: string;
+}
 
 export default function BlogPage() {
-  const featuredPost = posts.find((post) => post.featured);
-  const regularPosts = posts.filter((post) => !post.featured);
+  const [articles, setArticles] = useState<Article[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [selectedCategory, setSelectedCategory] = useState("All");
+
+  useEffect(() => {
+    async function fetchArticles() {
+      try {
+        const response = await fetch("/api/articles");
+        if (response.ok) {
+          const data = await response.json();
+          setArticles(data);
+        }
+      } catch (error) {
+        console.error("Error fetching articles:", error);
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchArticles();
+  }, []);
+
+  // Get unique categories from articles
+  const categories = ["All", ...new Set(articles.map((a) => a.category).filter(Boolean))];
+
+  // Filter articles by category
+  const filteredArticles = selectedCategory === "All"
+    ? articles
+    : articles.filter((a) => a.category === selectedCategory);
+
+  // Get featured post (first article) and regular posts
+  const featuredPost = filteredArticles[0];
+  const regularPosts = filteredArticles.slice(1);
 
   return (
     <div>
@@ -121,8 +82,36 @@ export default function BlogPage() {
         </div>
       </section>
 
+      {/* Loading State */}
+      {loading && (
+        <section className="py-20 bg-background">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <Loader2 className="w-8 h-8 animate-spin mx-auto text-primary" />
+            <p className="mt-4 text-foreground-muted">Loading articles...</p>
+          </div>
+        </section>
+      )}
+
+      {/* Empty State */}
+      {!loading && articles.length === 0 && (
+        <section className="py-20 bg-background">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <div className="max-w-md mx-auto">
+              <h2 className="text-2xl font-bold text-foreground mb-4">No Articles Yet</h2>
+              <p className="text-foreground-muted mb-8">
+                We&apos;re working on creating great content for you. Check back soon for tips,
+                stories, and insights about public speaking and leadership.
+              </p>
+              <Link href="/contact" className="btn-primary">
+                Get in Touch
+              </Link>
+            </div>
+          </div>
+        </section>
+      )}
+
       {/* Featured Post */}
-      {featuredPost && (
+      {!loading && featuredPost && (
         <section className="py-16 bg-background">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <motion.div
@@ -135,42 +124,44 @@ export default function BlogPage() {
                 href={`/blog/${featuredPost.slug}`}
                 className="group block bg-gradient-to-br from-primary/5 to-secondary/5 rounded-2xl overflow-hidden border border-border hover:shadow-xl transition-all"
               >
-                <div className="relative aspect-[21/9] w-full">
-                  <Image
-                    src={featuredPost.image}
-                    alt={featuredPost.title}
-                    fill
-                    className="object-cover"
-                  />
-                </div>
+                {featuredPost.featuredImage && (
+                  <div className="relative aspect-[21/9] w-full">
+                    <Image
+                      src={featuredPost.featuredImage}
+                      alt={featuredPost.title}
+                      fill
+                      className="object-cover"
+                    />
+                  </div>
+                )}
                 <div className="p-8 lg:p-12">
-                <span className="inline-block px-3 py-1 bg-primary/10 text-primary rounded-full text-xs font-medium mb-4">
-                  Featured Article
-                </span>
-                <h2 className="text-2xl lg:text-4xl font-bold text-foreground mb-4 group-hover:text-primary transition-colors">
-                  {featuredPost.title}
-                </h2>
-                <p className="text-foreground-muted text-lg mb-6 max-w-3xl">
-                  {featuredPost.excerpt}
-                </p>
-                <div className="flex flex-wrap items-center gap-4 text-sm text-foreground-muted">
-                  <div className="flex items-center gap-2">
-                    <User className="w-4 h-4" />
-                    {featuredPost.author}
+                  <span className="inline-block px-3 py-1 bg-primary/10 text-primary rounded-full text-xs font-medium mb-4">
+                    Featured Article
+                  </span>
+                  <h2 className="text-2xl lg:text-4xl font-bold text-foreground mb-4 group-hover:text-primary transition-colors">
+                    {featuredPost.title}
+                  </h2>
+                  <p className="text-foreground-muted text-lg mb-6 max-w-3xl">
+                    {featuredPost.excerpt}
+                  </p>
+                  <div className="flex flex-wrap items-center gap-4 text-sm text-foreground-muted">
+                    <div className="flex items-center gap-2">
+                      <User className="w-4 h-4" />
+                      {featuredPost.author}
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Calendar className="w-4 h-4" />
+                      {new Date(featuredPost.publishedAt).toLocaleDateString("en-GB", {
+                        day: "numeric",
+                        month: "long",
+                        year: "numeric",
+                      })}
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Clock className="w-4 h-4" />
+                      {featuredPost.readTime}
+                    </div>
                   </div>
-                  <div className="flex items-center gap-2">
-                    <Calendar className="w-4 h-4" />
-                    {new Date(featuredPost.date).toLocaleDateString("en-GB", {
-                      day: "numeric",
-                      month: "long",
-                      year: "numeric",
-                    })}
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Clock className="w-4 h-4" />
-                    {featuredPost.readTime}
-                  </div>
-                </div>
                 </div>
               </Link>
             </motion.div>
@@ -179,84 +170,84 @@ export default function BlogPage() {
       )}
 
       {/* Categories & Posts */}
-      <section className="py-16 bg-background-secondary">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          {/* Category Filter */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
-            className="flex flex-wrap gap-2 mb-12"
-          >
-            {categories.map((category) => (
-              <button
-                key={category}
-                className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
-                  category === "All"
-                    ? "bg-primary text-white"
-                    : "bg-white text-foreground-muted hover:bg-primary/10 hover:text-primary"
-                }`}
-              >
-                {category}
-              </button>
-            ))}
-          </motion.div>
-
-          {/* Posts Grid */}
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {regularPosts.map((post, index) => (
-              <motion.article
-                key={post.id}
+      {!loading && articles.length > 0 && (
+        <section className="py-16 bg-background-secondary">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            {/* Category Filter */}
+            {categories.length > 1 && (
+              <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
-                transition={{ duration: 0.6, delay: index * 0.1 }}
+                transition={{ duration: 0.6 }}
+                className="flex flex-wrap gap-2 mb-12"
               >
-                <Link
-                  href={`/blog/${post.slug}`}
-                  className="group block bg-white rounded-2xl overflow-hidden shadow-lg border border-border hover:shadow-xl transition-all h-full"
-                >
-                    <div className="relative aspect-video">
-                    <Image
-                      src={post.image}
-                      alt={post.title}
-                      fill
-                      className="object-cover"
-                    />
-                  </div>
-                  <div className="p-6">
-                    <span className="inline-block px-2 py-1 bg-primary/10 text-primary rounded text-xs font-medium mb-3">
-                      {post.category}
-                    </span>
-                    <h3 className="text-lg font-bold text-foreground mb-2 group-hover:text-primary transition-colors line-clamp-2">
-                      {post.title}
-                    </h3>
-                    <p className="text-foreground-muted text-sm mb-4 line-clamp-2">
-                      {post.excerpt}
-                    </p>
-                    <div className="flex items-center justify-between text-xs text-foreground-muted">
-                      <span>{post.author}</span>
-                      <span>{post.readTime}</span>
-                    </div>
-                  </div>
-                </Link>
-              </motion.article>
-            ))}
-          </div>
+                {categories.map((category) => (
+                  <button
+                    key={category}
+                    onClick={() => setSelectedCategory(category)}
+                    className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
+                      category === selectedCategory
+                        ? "bg-primary text-white"
+                        : "bg-white text-foreground-muted hover:bg-primary/10 hover:text-primary"
+                    }`}
+                  >
+                    {category}
+                  </button>
+                ))}
+              </motion.div>
+            )}
 
-          {/* Load More */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
-            className="text-center mt-12"
-          >
-            <button className="btn-outline">Load More Articles</button>
-          </motion.div>
-        </div>
-      </section>
+            {/* Posts Grid */}
+            {regularPosts.length > 0 && (
+              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+                {regularPosts.map((post, index) => (
+                  <motion.article
+                    key={post.id}
+                    initial={{ opacity: 0, y: 20 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ duration: 0.6, delay: index * 0.1 }}
+                  >
+                    <Link
+                      href={`/blog/${post.slug}`}
+                      className="group block bg-white rounded-2xl overflow-hidden shadow-lg border border-border hover:shadow-xl transition-all h-full"
+                    >
+                      {post.featuredImage && (
+                        <div className="relative aspect-video">
+                          <Image
+                            src={post.featuredImage}
+                            alt={post.title}
+                            fill
+                            className="object-cover"
+                          />
+                        </div>
+                      )}
+                      <div className="p-6">
+                        {post.category && (
+                          <span className="inline-block px-2 py-1 bg-primary/10 text-primary rounded text-xs font-medium mb-3">
+                            {post.category}
+                          </span>
+                        )}
+                        <h3 className="text-lg font-bold text-foreground mb-2 group-hover:text-primary transition-colors line-clamp-2">
+                          {post.title}
+                        </h3>
+                        <p className="text-foreground-muted text-sm mb-4 line-clamp-2">
+                          {post.excerpt}
+                        </p>
+                        <div className="flex items-center justify-between text-xs text-foreground-muted">
+                          <span>{post.author}</span>
+                          <span>{post.readTime}</span>
+                        </div>
+                      </div>
+                    </Link>
+                  </motion.article>
+                ))}
+              </div>
+            )}
+          </div>
+        </section>
+      )}
 
       {/* Newsletter CTA */}
       <section className="py-20 bg-gradient-to-br from-primary to-primary-dark text-white">

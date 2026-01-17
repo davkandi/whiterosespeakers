@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Mail, MapPin, Calendar, Youtube, ExternalLink } from "lucide-react";
+import { Mail, MapPin, Calendar, Youtube, ExternalLink, Facebook, Linkedin, Instagram } from "lucide-react";
 
 const footerLinks = {
   navigation: [
@@ -39,6 +39,33 @@ export default function Footer() {
               Part of Toastmasters International.
             </p>
             <div className="flex items-center gap-4">
+              <a
+                href="https://www.facebook.com/whiterosespeakers"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="p-2 bg-white/10 rounded-lg hover:bg-white/20 transition-colors"
+                aria-label="Facebook"
+              >
+                <Facebook className="w-5 h-5" />
+              </a>
+              <a
+                href="https://www.linkedin.com/in/white-rose-speakers-leeds-toastmasters-481a4a1b2/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="p-2 bg-white/10 rounded-lg hover:bg-white/20 transition-colors"
+                aria-label="LinkedIn"
+              >
+                <Linkedin className="w-5 h-5" />
+              </a>
+              <a
+                href="https://www.instagram.com/whiterosespeakers"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="p-2 bg-white/10 rounded-lg hover:bg-white/20 transition-colors"
+                aria-label="Instagram"
+              >
+                <Instagram className="w-5 h-5" />
+              </a>
               <a
                 href="https://www.youtube.com/watch?v=Nt6iyS-WBPs"
                 target="_blank"

@@ -73,6 +73,9 @@ export default $config({
 
         // Timeout for SSR functions
         timeout: "30 seconds",
+
+        // Node.js runtime version
+        runtime: "nodejs22.x",
       },
 
       // Warm up Lambda functions to reduce cold starts

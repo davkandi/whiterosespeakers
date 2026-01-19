@@ -584,8 +584,18 @@ export const testimonials = {
 };
 
 // Site Settings Operations
+const DEFAULT_SETTINGS: SiteSettings = {
+  meetingDay: "2nd and 4th Wednesday",
+  meetingTime: "6:45pm for 7:00pm start",
+  meetingLocation: "Leonardo Hotel, Leeds",
+  nextMeetingDate: "",
+  contactEmail: "whiterosespeaker@gmail.com",
+  clubUrl: "https://www.toastmasters.org/Find-a-Club/01971684-white-rose-speakers/contact-club?id=8e2c929b-8cd7-ec11-a2fd-005056875f20",
+  youtubeVideoId: "Nt6iyS-WBPs",
+};
+
 export const siteSettings = {
-  async get(): Promise<SiteSettings | null> {
+  async get(): Promise<SiteSettings> {
     const response = await docClient.send(
       new GetCommand({
         TableName: TABLES.CONTENT,
@@ -595,20 +605,11 @@ export const siteSettings = {
         },
       })
     );
-    return response.Item as SiteSettings | null;
+    return (response.Item as SiteSettings) || DEFAULT_SETTINGS;
   },
 
   async update(data: Partial<SiteSettings>): Promise<void> {
     const existing = await this.get();
-    const defaults: SiteSettings = {
-      meetingDay: "2nd and 4th Wednesday",
-      meetingTime: "6:45pm for 7:00pm start",
-      meetingLocation: "Leonardo Hotel, Leeds",
-      nextMeetingDate: "",
-      contactEmail: "whiterosespeaker@gmail.com",
-      clubUrl: "https://www.toastmasters.org/Find-a-Club/01971684-white-rose-speakers/contact-club?id=8e2c929b-8cd7-ec11-a2fd-005056875f20",
-      youtubeVideoId: "Nt6iyS-WBPs",
-    };
 
     await docClient.send(
       new PutCommand({
@@ -616,7 +617,7 @@ export const siteSettings = {
         Item: {
           PK: "SETTINGS",
           SK: "SITE",
-          ...(existing || defaults),
+          ...existing,
           ...data,
         },
       })

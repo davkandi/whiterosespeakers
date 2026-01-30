@@ -44,6 +44,8 @@ next-env.d.ts
 # SST
 .sst/
 .open-next/
+sst-env.d.ts
+infrastructure/cdk/sst-env.d.ts
 
 # CDK
 infrastructure/cdk/cdk.out/

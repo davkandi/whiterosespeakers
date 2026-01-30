@@ -433,7 +433,7 @@ export default function HomePage() {
                       </h3>
                       {nextEvent.description && (
                         <p className="text-foreground-muted text-sm mt-1 line-clamp-2">
-                          {nextEvent.description}
+                          {nextEvent.description.replace(/<[^>]*>/g, '')}
                         </p>
                       )}
                     </div>

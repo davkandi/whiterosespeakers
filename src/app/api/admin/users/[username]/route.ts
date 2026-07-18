@@ -9,6 +9,7 @@ import {
   AdminDisableUserCommand,
 } from "@aws-sdk/client-cognito-identity-provider";
 import { requireAdmin } from "@/lib/api-auth";
+import { cognitoErrorResponse } from "@/lib/cognito-errors";
 
 const cognitoClient = new CognitoIdentityProviderClient({
   region: process.env.AWS_REGION || "us-east-1",
@@ -38,10 +39,7 @@ export async function DELETE(
     return NextResponse.json({ success: true });
   } catch (error) {
     console.error("Error deleting user:", error);
-    return NextResponse.json(
-      { error: "Failed to delete user" },
-      { status: 500 }
-    );
+    return cognitoErrorResponse(error, "Failed to delete user");
   }
 }
 
@@ -107,9 +105,6 @@ export async function PUT(
     return NextResponse.json({ success: true });
   } catch (error) {
     console.error("Error updating user:", error);
-    return NextResponse.json(
-      { error: "Failed to update user" },
-      { status: 500 }
-    );
+    return cognitoErrorResponse(error, "Failed to update user");
   }
 }

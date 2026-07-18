@@ -10,6 +10,7 @@ import {
   AdminSetUserPasswordCommand,
 } from "@aws-sdk/client-cognito-identity-provider";
 import { requireAdmin } from "@/lib/api-auth";
+import { cognitoErrorResponse } from "@/lib/cognito-errors";
 
 const cognitoClient = new CognitoIdentityProviderClient({
   region: process.env.AWS_REGION || "us-east-1",
@@ -58,10 +59,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.json(usersWithGroups);
   } catch (error) {
     console.error("Error listing users:", error);
-    return NextResponse.json(
-      { error: "Failed to list users" },
-      { status: 500 }
-    );
+    return cognitoErrorResponse(error, "Failed to list users");
   }
 }
 
@@ -108,10 +106,6 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ success: true, username: email });
   } catch (error: unknown) {
     console.error("Error creating user:", error);
-    const errorMessage = error instanceof Error ? error.message : "Failed to create user";
-    return NextResponse.json(
-      { error: errorMessage },
-      { status: 500 }
-    );
+    return cognitoErrorResponse(error, "Failed to create user");
   }
 }
